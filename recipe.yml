@@ -74,36 +74,40 @@ stages:
   - name: install-gnome-extensions
     type: shell
     commands:
-      # Install compilation essentials
-      - apt-get update && apt-get install -y git unzip gettext meson ninja-build
+      # Install build dependencies for GNOME Shell extensions
+      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq
       - mkdir -p /usr/share/gnome-shell/extensions
 
       # 1. AppIndicator and KStatusNotifierItem Support
       - git clone "https://github.com/ubuntu/gnome-shell-extension-appindicator.git" /tmp/appindicator
-      - cd /tmp/appindicator && make install-local && mv ~/.local/share/gnome-shell/extensions/* /usr/share/gnome-shell/extensions/
+      - cd /tmp/appindicator && meson setup _build . -Dlocal_install=false --prefix=/usr && ninja -C _build install
 
       # 2. ArcMenu
       - git clone "https://gitlab.com/arcmenu/ArcMenu.git" /tmp/arcmenu
-      - cd /tmp/arcmenu && make install-local && mv ~/.local/share/gnome-shell/extensions/* /usr/share/gnome-shell/extensions/
+      - cd /tmp/arcmenu && make install DESTDIR=/
 
       # 3. Caffeine
       - wget "https://github.com/eonpatapon/gnome-shell-extension-caffeine/archive/refs/heads/master.tar.gz" -O /tmp/caffeine.tar.gz
       - mkdir -p /tmp/caffeine-src && tar -xzf /tmp/caffeine.tar.gz -C /tmp/caffeine-src --strip-components=1
-      - cd /tmp/caffeine-src && make install && mv ~/.local/share/gnome-shell/extensions/* /usr/share/gnome-shell/extensions/
+      - cp -rT /tmp/caffeine-src/caffeine@patapon.info /usr/share/gnome-shell/extensions/caffeine@patapon.info
 
       # 4. Dash to Dock
       - git clone "https://github.com/micheleg/dash-to-dock.git" /tmp/dashtodock
-      - cd /tmp/dashtodock && make && make install && mv ~/.local/share/gnome-shell/extensions/* /usr/share/gnome-shell/extensions/
+      - cd /tmp/dashtodock && make && make install DESTDIR=/
 
       # 5. GSConnect
       - git clone "https://github.com/GSConnect/gnome-shell-extension-gsconnect.git" /tmp/gsconnect
-      - cd /tmp/gsconnect && meson setup _build . && meson compile -C _build install && mv ~/.local/share/gnome-shell/extensions/* /usr/share/gnome-shell/extensions/
+      - cd /tmp/gsconnect && meson setup _build . --prefix=/usr && ninja -C _build install
 
       # 6. Lock Keys
       - git clone "https://github.com/kazysmaster/gnome-shell-extension-lockkeys.git" /usr/share/gnome-shell/extensions/lockkeys@vaina.lt
 
       # 7. Wallpaper Carousel
       - git clone "https://github.com/SpiritualRose/wallpaper-carousel.git" /usr/share/gnome-shell/extensions/wallpaper-carousel@spiritualrose.org
+
+      # Compile gsettings schemas for all installed extensions
+      - glib-compile-schemas /usr/share/glib-2.0/schemas
+      - for d in /usr/share/gnome-shell/extensions/*/schemas; do [ -d "$d" ] && glib-compile-schemas "$d"; done
 
   - name: install-sweet-aesthetics
     type: shell
