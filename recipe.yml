@@ -27,8 +27,6 @@ stages:
   - name: setup-repositories
     type: shell
     commands:
-      # Enable 32-bit architecture for native Steam dependencies
-      - dpkg --add-architecture i386
       # Enable Debian Non-Free components for native Steam client packages
       - for f in /etc/apt/sources.list /etc/apt/sources.list.d/*; do [ -f "$f" ] && sed -i 's/main/main contrib non-free non-free-firmware/g' "$f"; done
       # Install tools needed for downloading archives later
@@ -37,7 +35,8 @@ stages:
   - name: install-core-applications
     type: shell
     commands:
-      - apt-get install -y docker.io docker-compose steam
+      - apt-get install -y docker.io docker-buildx docker-compose
+      - apt-get install -y --no-install-recommends steam-installer
 
   - name: install-deb-packages
     type: includes
