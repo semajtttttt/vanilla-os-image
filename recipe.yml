@@ -119,7 +119,7 @@ stages:
       - wget "https://github.com/EliverLara/Sweet/releases/latest/download/Sweet-cursors.tar.xz" -O /tmp/sweet-cursors.tar.xz
       - tar -xJf /tmp/sweet-cursors.tar.xz -C /usr/share/icons/
 
-  - name: install-vanilla-backgrounds
+  - name: add-vanilla-backgrounds
     type: includes
     includes:
       - modules/55-vanilla-backgrounds.yml
