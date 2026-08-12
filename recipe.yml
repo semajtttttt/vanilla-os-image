@@ -21,27 +21,31 @@ stages:
     type: shell
     commands:
     - lpkg --unlock
-    - dpkg --add-architecture i386
     - apt-get update
 
   # Custom gaming and desktop modules
   - name: setup-repositories
     type: shell
     commands:
+      # Pin base VanillaOS repos to amd64 (the mirror lists i386 packages but the .deb pool is empty)
+      - for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do [ -f "$f" ] && sed -i '/^deb [^[]/s/^deb /deb [arch=amd64] /' "$f"; done
       # Enable Debian non-free, contrib and non-free-firmware components
-      - for f in /etc/apt/sources.list /etc/apt/sources.list.d/*; do [ -f "$f" ] && sed -i 's/main/main contrib non-free non-free-firmware/g' "$f"; done
+      - for f in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do [ -f "$f" ] && sed -i 's/main/main contrib non-free non-free-firmware/g' "$f"; done
       # Add Valve's official Steam repository (both amd64 and i386 for the runtime libs)
       - wget -q -O /usr/share/keyrings/steam.gpg "https://repo.steampowered.com/steam/archive/stable/steam.gpg"
       - echo 'deb [arch=amd64,i386 signed-by=/usr/share/keyrings/steam.gpg] https://repo.steampowered.com/steam/ stable steam' > /etc/apt/sources.list.d/steam.list
+      # Fetch the same i386 .debs directly from snapshot.debian.org since the VanillaOS mirror is missing them
+      - SNAPSHOT=$(grep -oE 'repo3\.vanillaos\.org/[0-9]{8}T[0-9]{6}Z' /etc/apt/sources.list | head -1 | cut -d/ -f2); [ -z "$SNAPSHOT" ] && SNAPSHOT=20251129T023004Z; echo "deb [arch=i386 trusted=yes] https://snapshot.debian.org/archive/debian/$SNAPSHOT sid main contrib non-free non-free-firmware" > /etc/apt/sources.list.d/i386-snapshot.list
+      - dpkg --add-architecture i386
       # Install tools needed for downloading archives later
-      - apt-get update && apt-get install -y wget
+      - apt-get -o Acquire::Check-Valid-Until=false update && apt-get install -y wget
 
   - name: install-core-applications
     type: shell
     commands:
       - apt-get install -y docker.io docker-buildx docker-compose
       # Steam's 32-bit bootstrap needs 32-bit libc, GL and DRM libraries
-      - apt-get install -y --no-install-recommends steam-launcher libc6:i386 libdrm2:i386 libgl1-nvidia-glvnd-glx:i386 libglx-nvidia0:i386 || apt-get install -y --no-install-recommends steam-launcher libc6:i386 libdrm2:i386 libgl1-mesa-dri:i386
+      - apt-get -o Acquire::Check-Valid-Until=false install -y --no-install-recommends steam-launcher steam-libs-i386:i386 libc6:i386 libdrm2:i386 libgl1-nvidia-glvnd-glx:i386 libglx-nvidia0:i386 || apt-get -o Acquire::Check-Valid-Until=false install -y --no-install-recommends steam-launcher steam-libs-i386:i386 libc6:i386 libdrm2:i386 libgl1-mesa-dri:i386
 
   - name: install-deb-packages
     type: includes
