@@ -1,0 +1,8 @@
+name: install-vanilla-backgrounds
+type: shell
+commands:
+  - mkdir -p /tmp/vanilla-backgrounds /usr/share/backgrounds/vanilla
+  - wget "https://github.com/Vanilla-OS/vanilla-backgrounds/archive/refs/heads/main.tar.gz" -O /tmp/vanilla-backgrounds.tar.gz
+  - tar -xzf /tmp/vanilla-backgrounds.tar.gz -C /tmp/vanilla-backgrounds --strip-components=1
+  - for f in /tmp/vanilla-backgrounds/backgrounds/*.webp /tmp/vanilla-backgrounds/backgrounds/*.svg; do [ -f "$f" ] && cp "$f" /usr/share/backgrounds/vanilla/; done
+  - rm -rf /tmp/vanilla-backgrounds /tmp/vanilla-backgrounds.tar.gz
