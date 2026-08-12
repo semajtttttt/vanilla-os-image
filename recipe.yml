@@ -80,7 +80,7 @@ stages:
 
       # 1. AppIndicator and KStatusNotifierItem Support
       - git clone "https://github.com/ubuntu/gnome-shell-extension-appindicator.git" /tmp/appindicator
-      - cd /tmp/appindicator && meson setup _build . -Dlocal_install=false --prefix=/usr && ninja -C _build install
+      - cd /tmp/appindicator && meson setup _build . -Dlocal_install=disabled --prefix=/usr && ninja -C _build install
 
       # 2. ArcMenu
       - git clone "https://gitlab.com/arcmenu/ArcMenu.git" /tmp/arcmenu
