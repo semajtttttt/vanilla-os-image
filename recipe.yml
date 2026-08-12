@@ -61,7 +61,11 @@ stages:
       - mkdir -p /usr/src/hid-xpadneo-v0.10.4
       - cp -r /tmp/xpadneo/hid-xpadneo/* /usr/src/hid-xpadneo-v0.10.4/
       - dkms add -m hid-xpadneo -v v0.10.4
-      # DKMS will build against the live target kernel on first boot; the build container's kernel is not the image kernel
+      # Build and install the module for the image's target kernel so it is baked in
+      - KV=$(ls /lib/modules | sort -V | tail -1)
+      - dkms build -m hid-xpadneo -v v0.10.4 -k "$KV"
+      - dkms install -m hid-xpadneo -v v0.10.4 -k "$KV"
+      - depmod -a "$KV"
       - rm -rf /tmp/xpadneo /tmp/xpadneo.tar.gz
 
   - name: configure-systemd-services
