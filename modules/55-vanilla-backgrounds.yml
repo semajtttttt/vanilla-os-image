@@ -1,4 +1,4 @@
-name: install-vanilla-backgrounds
+name: download-vanilla-backgrounds
 type: shell
 commands:
   - mkdir -p /tmp/vanilla-backgrounds /usr/share/backgrounds/vanilla
