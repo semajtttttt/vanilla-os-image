@@ -87,7 +87,7 @@ stages:
       - cd /tmp/arcmenu && make install DESTDIR=/
 
       # 3. Caffeine
-      - wget "https://github.com/eonpatapon/gnome-shell-extension-caffeine/archive/refs/heads/master.tar.gz" -O /tmp/caffeine.tar.gz
+      - wget -nv --tries=5 --timeout=60 -O /tmp/caffeine.tar.gz "https://codeload.github.com/eonpatapon/gnome-shell-extension-caffeine/tar.gz/refs/heads/master"
       - mkdir -p /tmp/caffeine-src && tar -xzf /tmp/caffeine.tar.gz -C /tmp/caffeine-src --strip-components=1
       - cp -rT /tmp/caffeine-src/caffeine@patapon.info /usr/share/gnome-shell/extensions/caffeine@patapon.info
 
