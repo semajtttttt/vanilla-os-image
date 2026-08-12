@@ -52,7 +52,7 @@ stages:
       # Pull build tools and kernel headers for DKMS
       - apt-get install -y dkms linux-headers-amd64 build-essential
       # Fetch and unpack xpadneo
-      - wget "https://github.com/atar-axis/xpadneo/archive/refs/tags/v0.10.4.tar.gz" -O /tmp/xpadneo.tar.gz
+      - wget -nv --tries=5 --timeout=60 -O /tmp/xpadneo.tar.gz "https://codeload.github.com/atar-axis/xpadneo/tar.gz/refs/tags/v0.10.4"
       - mkdir -p /tmp/xpadneo
       - tar -xzf /tmp/xpadneo.tar.gz -C /tmp/xpadneo --strip-components=1
       # Generate dkms.conf, install modprobe/udev rules and docs, but skip dkms/udev in the Makefile
