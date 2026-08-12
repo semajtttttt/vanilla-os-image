@@ -115,18 +115,18 @@ stages:
       - mkdir -p /usr/share/themes /usr/share/icons
 
       # 1. Fetch & Install the Core Sweet GTK Theme
-      - for i in 1 2 3; do wget -q -O /tmp/sweet-theme.tar.gz "https://codeload.github.com/EliverLara/Sweet/tar.gz/refs/heads/master" && break; sleep 5; done; test -s /tmp/sweet-theme.tar.gz
+      - wget -nv --tries=5 --timeout=60 -O /tmp/sweet-theme.tar.gz "https://codeload.github.com/EliverLara/Sweet/tar.gz/refs/heads/master"
       - mkdir -p /usr/share/themes/Sweet
       - tar -xzf /tmp/sweet-theme.tar.gz -C /usr/share/themes/Sweet --strip-components=1
 
       # 2. Fetch & Install Candy Icons
-      - for i in 1 2 3; do wget -q -O /tmp/candy-icons.tar.gz "https://codeload.github.com/EliverLara/candy-icons/tar.gz/refs/heads/master" && break; sleep 5; done; test -s /tmp/candy-icons.tar.gz
+      - wget -nv --tries=5 --timeout=60 -O /tmp/candy-icons.tar.gz "https://codeload.github.com/EliverLara/candy-icons/tar.gz/refs/heads/master"
       - mkdir -p /usr/share/icons/candy-icons
       - tar -xzf /tmp/candy-icons.tar.gz -C /usr/share/icons/candy-icons --strip-components=1
 
-      # 3. Fetch & Install Sweet Cursor pack
-      - for i in 1 2 3; do wget -q -O /tmp/sweet-cursors.tar.xz "https://github.com/EliverLara/Sweet/releases/latest/download/Sweet-cursors.tar.xz" && break; sleep 5; done; test -s /tmp/sweet-cursors.tar.xz
-      - tar -xJf /tmp/sweet-cursors.tar.xz -C /usr/share/icons/
+      # 3. Fetch & Install Sweet Cursor pack (release asset name varies)
+      - wget -nv --tries=5 --timeout=60 -O /tmp/sweet-cursors.tar.xz "https://github.com/EliverLara/Sweet/releases/latest/download/Sweet-cursors.tar.xz" || true
+      - if [ -s /tmp/sweet-cursors.tar.xz ]; then tar -xJf /tmp/sweet-cursors.tar.xz -C /usr/share/icons/; else echo "Sweet cursors not available, skipping"; fi
 
   - name: add-vanilla-backgrounds
     type: includes
