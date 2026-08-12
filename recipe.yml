@@ -30,7 +30,7 @@ stages:
       # Enable 32-bit architecture for native Steam dependencies
       - dpkg --add-architecture i386
       # Enable Debian Non-Free components for native Steam client packages
-      - sed -i 's/main/main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources
+      - for f in /etc/apt/sources.list /etc/apt/sources.list.d/*; do [ -f "$f" ] && sed -i 's/main/main contrib non-free non-free-firmware/g' "$f"; done
       # Install tools needed for downloading archives later
       - apt-get update && apt-get install -y wget
 
