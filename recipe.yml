@@ -27,8 +27,11 @@ stages:
   - name: setup-repositories
     type: shell
     commands:
-      # Enable Debian Non-Free components for native Steam client packages
+      # Enable Debian non-free, contrib and non-free-firmware components
       - for f in /etc/apt/sources.list /etc/apt/sources.list.d/*; do [ -f "$f" ] && sed -i 's/main/main contrib non-free non-free-firmware/g' "$f"; done
+      # Add Valve's official Steam repository (amd64 only, i386 packages are not available)
+      - wget -q -O /usr/share/keyrings/steam.gpg "https://repo.steampowered.com/steam/steam.gpg"
+      - echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/steam.gpg] https://repo.steampowered.com/steam/ stable steam' > /etc/apt/sources.list.d/steam.list
       # Install tools needed for downloading archives later
       - apt-get update && apt-get install -y wget
 
@@ -36,7 +39,7 @@ stages:
     type: shell
     commands:
       - apt-get install -y docker.io docker-buildx docker-compose
-      - apt-get install -y --no-install-recommends steam-installer
+      - apt-get install -y --no-install-recommends steam-launcher
 
   - name: install-deb-packages
     type: includes
