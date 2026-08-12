@@ -39,7 +39,8 @@ stages:
     type: shell
     commands:
       - apt-get install -y docker.io docker-buildx docker-compose
-      - apt-get install -y --no-install-recommends steam-launcher
+      # Steam's 32-bit bootstrap binary needs the 32-bit libc/loader even though the UI is 64-bit
+      - apt-get install -y --no-install-recommends steam-launcher libc6-i386
 
   - name: install-deb-packages
     type: includes
