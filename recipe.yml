@@ -48,7 +48,14 @@ stages:
       # Refresh package lists after adding the i386 snapshot so the steam-launcher candidate is picked up
       - apt-get -o Acquire::Check-Valid-Until=false update
       # Steam's 32-bit bootstrap needs 32-bit libc, GL and DRM libraries
-      - apt-get -o Acquire::Check-Valid-Until=false install -y --no-install-recommends steam-launcher libc6:i386 libdrm2:i386 libgl1:i386 libgl1-nvidia-glvnd-glx:i386 libglx-nvidia0:i386 || apt-get -o Acquire::Check-Valid-Until=false install -y --no-install-recommends steam-launcher libc6:i386 libdrm2:i386 libgl1:i386 libgl1-mesa-dri:i386 || apt-get -o Acquire::Check-Valid-Until=false install -y --no-install-recommends steam-installer libc6:i386 libdrm2:i386 libgl1:i386 libgl1-mesa-dri:i386
+      - apt-get -o Acquire::Check-Valid-Until=false install -y --no-install-recommends steam-launcher libc6:i386 libdrm2:i386 libstdc++6:i386 libgcc-s1:i386 || apt-get -o Acquire::Check-Valid-Until=false install -y --no-install-recommends steam-installer libc6:i386 libdrm2:i386 libstdc++6:i386 libgcc-s1:i386
+      # Steam's 32-bit GL stack can't always be installed via apt because amd64/i386 versions get out of sync, so force-extract the i386 .debs
+      - mkdir -p /tmp/gl-i386 && cd /tmp/gl-i386 && for pkg in libgl1 libglx0 libglvnd0 libglx-mesa0 libgl1-mesa-dri libglapi-mesa libgbm1 libdrm2 libx11-xcb1 libx11-6 libxcb1 libxcb-dri2-0 libxcb-dri3-0 libxcb-glx0 libxcb-present0 libxcb-sync1 libxcb-xfixes0 libxcb-xkb1 libxkbcommon0 libxkbcommon-x11-0 libwayland-client0 libwayland-server0 libexpat1 libzstd1 libvulkan1 libelf1 libelf1t64 libpciaccess0 libsensors5 libstdc++6 libgcc-s1; do apt-get -o Acquire::Check-Valid-Until=false download "${pkg}:i386" || true; done
+      - for deb in /tmp/gl-i386/*.deb; do [ -f "$deb" ] && dpkg-deb -x "$deb" /; done
+      - rm -rf /tmp/gl-i386
+      - echo '/usr/lib/i386-linux-gnu' > /etc/ld.so.conf.d/i386-linux-gnu.conf
+      - ldconfig
+      - test -f /usr/lib/i386-linux-gnu/libGL.so.1
 
   - name: install-deb-packages
     type: includes
@@ -88,7 +95,7 @@ stages:
     type: shell
     commands:
       # Install build dependencies for GNOME Shell extensions
-      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq libpulse0
+      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq libpulse0 libpulse-mainloop-glib0
       - mkdir -p /usr/share/gnome-shell/extensions
 
       # 1. AppIndicator and KStatusNotifierItem Support
@@ -111,6 +118,11 @@ stages:
       # 5. GSConnect
       - git clone "https://github.com/GSConnect/gnome-shell-extension-gsconnect.git" /tmp/gsconnect
       - cd /tmp/gsconnect && meson setup _build . --prefix=/usr && ninja -C _build install
+      # Make GNOME Shell's private Gvc typelib available to the GSConnect daemon
+      - echo '/usr/lib/gnome-shell' > /etc/ld.so.conf.d/gnome-shell.conf
+      - ldconfig
+      - mkdir -p /usr/lib/x86_64-linux-gnu/girepository-1.0
+      - [ -f /usr/lib/gnome-shell/Gvc-1.0.typelib ] && ln -sf /usr/lib/gnome-shell/Gvc-1.0.typelib /usr/lib/x86_64-linux-gnu/girepository-1.0/Gvc-1.0.typelib
 
       # 6. Lock Keys
       - git clone "https://github.com/kazysmaster/gnome-shell-extension-lockkeys.git" /usr/share/gnome-shell/extensions/lockkeys@vaina.lt
