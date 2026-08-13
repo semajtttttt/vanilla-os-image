@@ -122,7 +122,7 @@ stages:
       - echo '/usr/lib/gnome-shell' > /etc/ld.so.conf.d/gnome-shell.conf
       - ldconfig
       - mkdir -p /usr/lib/x86_64-linux-gnu/girepository-1.0
-      - [ -f /usr/lib/gnome-shell/Gvc-1.0.typelib ] && ln -sf /usr/lib/gnome-shell/Gvc-1.0.typelib /usr/lib/x86_64-linux-gnu/girepository-1.0/Gvc-1.0.typelib
+      - '[ -f /usr/lib/gnome-shell/Gvc-1.0.typelib ] && ln -sf /usr/lib/gnome-shell/Gvc-1.0.typelib /usr/lib/x86_64-linux-gnu/girepository-1.0/Gvc-1.0.typelib'
 
       # 6. Lock Keys
       - git clone "https://github.com/kazysmaster/gnome-shell-extension-lockkeys.git" /usr/share/gnome-shell/extensions/lockkeys@vaina.lt
