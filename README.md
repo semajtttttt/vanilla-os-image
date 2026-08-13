@@ -9,13 +9,13 @@ A custom Vanilla OS 2 Orchid image based on `ghcr.io/vanilla-os/nvidia:main` wit
 - `.github/workflows/release.yml`: Creates a GitHub release and uploads the generated `Containerfile` when a tag is pushed.
 - `.github/dependabot.yml`: Dependabot configuration for keeping the GitHub Actions versions up to date.
 - `modules/`: Shared Vib modules used by `recipe.yml`.
-- `modules/55-vanilla-backgrounds.yml`: Downloads and installs the Vanilla OS wallpaper collection.
-- `includes.container/usr/share/backgrounds/custom/`: Drop your own wallpaper images here and they will be included in the image.
+- `modules/55-vanilla-backgrounds.yml`: Downloads and installs the Vanilla OS wallpaper collection to `/usr/share/backgrounds/`.
+- `includes.container/usr/share/backgrounds/`: Drop your own wallpaper images here and they will be included in the image.
 - `includes.container/`: Files that are added to the image, including the ABRoot configuration.
 
 ## Custom wallpapers
 
-Place your own `.jpg`, `.png`, `.webp`, or `.svg` wallpapers in `includes.container/usr/share/backgrounds/custom/`. They will appear in the image at `/usr/share/backgrounds/custom/` alongside the Vanilla OS wallpapers.
+Place your own `.jpg`, `.png`, `.webp`, or `.svg` wallpapers directly in `includes.container/usr/share/backgrounds/`. They will appear in the image at `/usr/share/backgrounds/` alongside the Vanilla OS wallpapers.
 
 ## Build
 
