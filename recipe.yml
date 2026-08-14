@@ -108,7 +108,7 @@ stages:
     type: shell
     commands:
       # Install build dependencies for GNOME Shell extensions
-      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq libpulse0 libpulse-mainloop-glib0 libpulse-dev pulseaudio-utils libgsound0 libcanberra0 libcanberra-gtk3-0 libasound2
+      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq libpulse0 libpulse-mainloop-glib0 libpulse-dev pulseaudio-utils
       - mkdir -p /usr/share/gnome-shell/extensions
 
       # 1. AppIndicator and KStatusNotifierItem Support
