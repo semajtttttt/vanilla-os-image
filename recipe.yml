@@ -108,7 +108,7 @@ stages:
     type: shell
     commands:
       # Install build dependencies for GNOME Shell extensions
-      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq libpulse0 libpulse-mainloop-glib0 libpulse-dev pulseaudio-utils
+      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq libpulse0 libpulse-mainloop-glib0 libpulse-dev pulseaudio-utils libgsound0 libcanberra0 libcanberra-gtk3-0 libasound2
       - mkdir -p /usr/share/gnome-shell/extensions
 
       # 1. AppIndicator and KStatusNotifierItem Support
@@ -136,6 +136,9 @@ stages:
       - ldconfig
       - mkdir -p /usr/lib/x86_64-linux-gnu/girepository-1.0
       - '[ -f /usr/lib/gnome-shell/Gvc-1.0.typelib ] && ln -sf /usr/lib/gnome-shell/Gvc-1.0.typelib /usr/lib/x86_64-linux-gnu/girepository-1.0/Gvc-1.0.typelib'
+      # Make libgvc.so resolvable from a standard library search path
+      - ln -sf /usr/lib/gnome-shell/libgvc.so /usr/lib/x86_64-linux-gnu/libgvc.so
+      - ldconfig
 
       # 6. Lock Keys
       - git clone "https://github.com/kazysmaster/gnome-shell-extension-lockkeys.git" /usr/share/gnome-shell/extensions/lockkeys@vaina.lt
