@@ -57,6 +57,19 @@ stages:
       - ldconfig
       - test -f /usr/lib/i386-linux-gnu/libGL.so.1
 
+  - name: install-devin-desktop
+    type: shell
+    commands:
+      # Fetch and install the latest Devin Desktop .deb from Codeium's update API
+      - apt-get -o Acquire::Check-Valid-Until=false update
+      - apt-get -o Acquire::Check-Valid-Until=false install -y jq
+      - DEVIN_URL=$(wget -qO- "https://windsurf-stable.codeium.com/api/update/linux-x64/stable/latest" | jq -r '.url // .downloadUrl // empty')
+      - test -n "$DEVIN_URL"
+      - wget -nv --tries=5 --timeout=120 -O /tmp/devin-desktop.deb "$DEVIN_URL"
+      - dpkg -i /tmp/devin-desktop.deb || true
+      - apt-get -o Acquire::Check-Valid-Until=false -f -y install
+      - rm -f /tmp/devin-desktop.deb
+
   - name: install-deb-packages
     type: includes
     includes:
@@ -95,7 +108,7 @@ stages:
     type: shell
     commands:
       # Install build dependencies for GNOME Shell extensions
-      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq libpulse0 libpulse-mainloop-glib0
+      - apt-get update && apt-get install -y git unzip gettext meson ninja-build sassc libglib2.0-dev-bin jq libpulse0 libpulse-mainloop-glib0 libpulse-dev pulseaudio-utils
       - mkdir -p /usr/share/gnome-shell/extensions
 
       # 1. AppIndicator and KStatusNotifierItem Support
@@ -128,7 +141,8 @@ stages:
       - git clone "https://github.com/kazysmaster/gnome-shell-extension-lockkeys.git" /usr/share/gnome-shell/extensions/lockkeys@vaina.lt
 
       # 7. Wallpaper Carousel
-      - git clone "https://github.com/SpiritualRose/wallpaper-carousel.git" /usr/share/gnome-shell/extensions/wallpaper-carousel@spiritualrose.org
+      - git clone --depth 1 "https://github.com/SpiritualRose/wallpaper-carousel.git" /tmp/wallpaper-carousel
+      - WCUUID=$(jq -r '.uuid' /tmp/wallpaper-carousel/metadata.json) && [ -n "$WCUUID" ] && rm -rf "/usr/share/gnome-shell/extensions/$WCUUID" && mv /tmp/wallpaper-carousel "/usr/share/gnome-shell/extensions/$WCUUID"
 
       # Compile gsettings schemas for all installed extensions
       - glib-compile-schemas /usr/share/glib-2.0/schemas
