@@ -178,7 +178,7 @@ jobs:
         no-cache: true
 
     - name: Attest pushed image
-      uses: actions/attest-build-provenance@v1
+      uses: actions/attest-build-provenance@v4
       id: attest
       if: ${{ github.event_name != 'pull_request' }}
       with:
