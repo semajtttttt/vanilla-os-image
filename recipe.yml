@@ -60,15 +60,20 @@ stages:
   - name: install-devin-desktop
     type: shell
     commands:
-      # Fetch and install the latest Devin Desktop .deb from Codeium's update API
+      # Fetch and install the latest Devin Desktop from Codeium's update API (returns .tar.gz)
       - apt-get -o Acquire::Check-Valid-Until=false update
-      - apt-get -o Acquire::Check-Valid-Until=false install -y jq
-      - DEVIN_URL=$(wget -qO- "https://windsurf-stable.codeium.com/api/update/linux-x64/stable/latest" | jq -r '.url // .downloadUrl // empty')
+      - apt-get -o Acquire::Check-Valid-Until=false install -y jq wget tar
+      - DEVIN_META=$(wget -qO- "https://windsurf-stable.codeium.com/api/update/linux-x64/stable/latest")
+      - DEVIN_URL=$(echo "$DEVIN_META" | jq -r '.url // empty')
+      - DEVIN_VERSION=$(echo "$DEVIN_META" | jq -r '.productVersion // .name // empty')
       - test -n "$DEVIN_URL"
-      - wget -nv --tries=5 --timeout=120 -O /tmp/devin-desktop.deb "$DEVIN_URL"
-      - dpkg -i /tmp/devin-desktop.deb || true
-      - apt-get -o Acquire::Check-Valid-Until=false -f -y install
-      - rm -f /tmp/devin-desktop.deb
+      - wget -nv --tries=5 --timeout=120 -O /tmp/devin-desktop.tar.gz "$DEVIN_URL"
+      - mkdir -p /opt/devin-desktop
+      - tar -xzf /tmp/devin-desktop.tar.gz -C /opt/devin-desktop --strip-components=1
+      - ln -sf /opt/devin-desktop/bin/devin-desktop /usr/bin/devin-desktop
+      - chmod +x /usr/bin/devin-desktop
+      - echo "$DEVIN_VERSION" > /opt/devin-desktop/.version
+      - rm -f /tmp/devin-desktop.tar.gz
 
   - name: install-deb-packages
     type: includes

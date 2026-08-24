@@ -67,11 +67,22 @@ jobs:
           echo New digest is: $(cat digest.txt)
           echo "HAS_UPDATES=$(cmp -s digest.txt last_digest.txt; echo $?)" >> "$GITHUB_ENV"
 
+      - name: Check if Devin Desktop has a new version
+        run: |
+          touch devin-version.txt
+          mv devin-version.txt last-devin-version.txt
+          wget -qO- "https://windsurf-stable.codeium.com/api/update/linux-x64/stable/latest" | jq -r '.productVersion // .name // empty' > devin-version.txt
+          echo Old Devin Desktop version: $(cat last-devin-version.txt)
+          echo New Devin Desktop version: $(cat devin-version.txt)
+          echo "DEVIN_UPDATED=$(cmp -s devin-version.txt last-devin-version.txt; echo $?)" >> "$GITHUB_ENV"
+
       - name: Upload current digest
         uses: actions/upload-artifact@v4
         with:
           name: digest
-          path: digest.txt
+          path: |
+            digest.txt
+            devin-version.txt
 
       - name: Set output
         id: set_output
@@ -84,8 +95,12 @@ jobs:
           then
             echo base image was updated since the last build
             echo "has_updates=true" >> "$GITHUB_OUTPUT"
+          elif [ ${{ env.DEVIN_UPDATED }} == 1 ]
+          then
+            echo Devin Desktop was updated since the last build
+            echo "has_updates=true" >> "$GITHUB_OUTPUT"
           else
-            echo no updates to the base image since the last build
+            echo no updates to the base image or Devin Desktop since the last build
             echo "has_updates=false" >> "$GITHUB_OUTPUT"
           fi
 
