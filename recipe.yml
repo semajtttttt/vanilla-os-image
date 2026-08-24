@@ -80,8 +80,8 @@ stages:
       - wget -nv --tries=5 --timeout=120 -O /tmp/devin-desktop.tar.gz "$DEVIN_URL"
       - mkdir -p /opt/devin-desktop
       - tar -xzf /tmp/devin-desktop.tar.gz -C /opt/devin-desktop --strip-components=1
-      - ln -sf /opt/devin-desktop/bin/devin-desktop /usr/bin/devin-desktop
-      - chmod +x /usr/bin/devin-desktop
+      - ln -sf /opt/devin-desktop/devin-desktop /usr/bin/devin-desktop
+      - chmod +x /opt/devin-desktop/devin-desktop
       - echo "$DEVIN_VERSION" > /opt/devin-desktop/.version
       - rm -f /tmp/devin-desktop.tar.gz
 

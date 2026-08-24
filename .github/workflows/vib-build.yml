@@ -175,6 +175,7 @@ jobs:
         cache-to: type=gha,mode=max
         platforms: linux/amd64
         provenance: false
+        no-cache: true
 
     - name: Attest pushed image
       uses: actions/attest-build-provenance@v1
