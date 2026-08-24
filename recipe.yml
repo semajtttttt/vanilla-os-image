@@ -115,8 +115,8 @@ stages:
   - name: configure-systemd-services
     type: shell
     commands:
-      # Do NOT enable Docker on boot — VanillaOS VSO uses podman and dockerd conflicts with it
-      # Docker is installed but must be started manually with: sudo systemctl start docker
+      - systemctl enable docker.service
+      - systemctl enable containerd.service
 
   - name: install-gnome-extensions
     type: shell
