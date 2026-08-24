@@ -115,9 +115,8 @@ stages:
   - name: configure-systemd-services
     type: shell
     commands:
-      # Enable the Docker system daemon to launch automatically on boot
-      - systemctl enable docker.service
-      - systemctl enable containerd.service
+      # Do NOT enable Docker on boot — VanillaOS VSO uses podman and dockerd conflicts with it
+      # Docker is installed but must be started manually with: sudo systemctl start docker
 
   - name: install-gnome-extensions
     type: shell
@@ -155,8 +154,10 @@ stages:
       - ln -sf /usr/lib/gnome-shell/libgvc.so /usr/lib/x86_64-linux-gnu/libgvc.so
       - ldconfig
 
-      # 6. Lock Keys
-      - git clone "https://github.com/kazysmaster/gnome-shell-extension-lockkeys.git" /usr/share/gnome-shell/extensions/lockkeys@vaina.lt
+      # 6. Lock Keys (repo has extension files in a subdirectory, not at root)
+      - git clone "https://github.com/kazysmaster/gnome-shell-extension-lockkeys.git" /tmp/lockkeys
+      - cp -rT /tmp/lockkeys/lockkeys@vaina.lt /usr/share/gnome-shell/extensions/lockkeys@vaina.lt
+      - rm -rf /tmp/lockkeys
 
       # 7. Wallpaper Carousel
       - git clone --depth 1 "https://github.com/SpiritualRose/wallpaper-carousel.git" /tmp/wallpaper-carousel
