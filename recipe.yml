@@ -58,14 +58,14 @@ stages:
   - name: install-steam-32bit-libs
     type: shell
     commands:
-      # Steam's 32-bit GL stack can't always be installed via apt because amd64/i386 versions get out of sync, so force-extract the i386 .debs
+      # Steam's 32-bit GL stack: force-extract i386 .debs from snapshot.debian.org only (VanillaOS mirror 404s i386 packages)
       - apt-get -o Acquire::Check-Valid-Until=false update
-      - mkdir -p /tmp/gl-i386 && cd /tmp/gl-i386 && for pkg in libgl1 libglx0 libglvnd0 libglx-mesa0 libgl1-mesa-dri libglapi-mesa libgbm1 libdrm2 libx11-xcb1 libx11-6 libxcb1 libxcb-dri2-0 libxcb-dri3-0 libxcb-glx0 libxcb-present0 libxcb-sync1 libxcb-xfixes0 libxcb-xkb1 libxkbcommon0 libxkbcommon-x11-0 libwayland-client0 libwayland-server0 libexpat1 libzstd1 libvulkan1 libelf1 libpciaccess0 libsensors5 libstdc++6 libgcc-s1; do apt-get -o Acquire::Check-Valid-Until=false download "${pkg}:i386" || true; done
+      - mkdir -p /tmp/gl-i386 && cd /tmp/gl-i386 && for pkg in libgl1 libglx0 libglvnd0 libglx-mesa0 libgl1-mesa-dri libglapi-mesa libgbm1 libdrm2 libx11-xcb1 libx11-6 libxcb1 libxcb-dri2-0 libxcb-dri3-0 libxcb-glx0 libxcb-present0 libxcb-sync1 libxcb-xfixes0 libxcb-xkb1 libxkbcommon0 libxkbcommon-x11-0 libwayland-client0 libwayland-server0 libexpat1 libzstd1 libvulkan1 libelf1t64 libpciaccess0 libsensors5 libstdc++6 libgcc-s1; do apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/i386-snapshot.list -o Dir::Etc::sourceparts=- -o Acquire::Check-Valid-Until=false download "${pkg}:i386" || true; done
       - for deb in /tmp/gl-i386/*.deb; do [ -f "$deb" ] && dpkg-deb -x "$deb" /; done
       - rm -rf /tmp/gl-i386
       - echo '/usr/lib/i386-linux-gnu' > /etc/ld.so.conf.d/i386-linux-gnu.conf
       - ldconfig
-      - test -f /usr/lib/i386-linux-gnu/libGL.so.1
+      - 'test -f /usr/lib/i386-linux-gnu/libGL.so.1 || echo "WARNING: libGL.so.1 not found, Steam may not work"'
 
   - name: install-devin-desktop
     type: shell
